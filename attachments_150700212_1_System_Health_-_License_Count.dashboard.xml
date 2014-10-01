@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION - THIS IS AN AUTOMATICALLY GENERATED FILE -->
+<!-- Manual changes can cause severe problems and system instability -->
+<!-- Apply manual changes only if you have received explicit instructions from dynaTrace Support -->
+<dynatrace version="5.5.0.5562" date="12/27/13 2:21 PM">
+  <dashboardconfig memento.version="5.5.0.5562" icon="com.dynatrace.diagnostics.portlets/icons/chart_portlet_type.png" localizationenabled="false" sessiontype="live" locationassource="false" groupname="" authorname="AMISXG0" opendrilldowninnewdashboard="false" sessionid="BNYMellon" autoreplacesession="false" modified="2013-12-27T14:21:26-0500" id="ae5c1fa7-192b-4801-8062-b9a65369938e" revision="00000143-3581-0cac-a2da-80f952793c93" source="server://r29qc00" created="2013-12-27T14:21:23-0500" description="" name="System Health - License Count" modifiedbyname="AMISXG0" locationascomparesource="false">
+    <reportconfig lines.per.table="100" enabled="true" print.legends="true" orientation="portrait" pagesize="A4" formathtml="com.dynatrace.diagnostics.report.velocity.format.htmlrenderer" optimizeequalcolumns="true" type="PDF" title="" override="false" levels.per.tree="10" description="" formatpdf="com.dynatrace.diagnostics.report.velocity.format.pdfrenderer" print.images="true" />
+    <filter>
+      <criterion completepurepath="true" type="agents" mode="all">
+        <textpattern enabled="true" name="agentname" type="contains" />
+        <textpattern enabled="true" name="agenthost" type="contains" />
+      </criterion>
+      <criterion type="and" />
+      <criterion excludeexternalsubpaths="false" type="api" mode="all" />
+      <criterion type="applications" mode="all" />
+      <criterion showrendering="true" isactive="true" shownetwork="true" showjavascript="true" type="browserpathtype" />
+      <criterion timerenabled="false" pageenabled="false" type="browsersectionfilter">
+        <timername>
+          <stringmatchpattern text="" match="contains" />
+        </timername>
+        <pageurl>
+          <stringmatchpattern text="" match="contains" />
+        </pageurl>
+      </criterion>
+      <criterion type="btm" />
+      <criterion filterinterval="false" intervalend="0" type="dcrumdimension" intervalstart="0" />
+      <criterion isactive="true" analyzeserverpath="true" type="enduserpath" analyzeenduserpath="true" />
+      <criterion completepurepath="true" type="hosts" mode="all" />
+      <criterion severities="" statesmode="all" severitiesmode="all" states="" rulesmode="all" type="incident" />
+      <criterion type="or" />
+      <criterion enduser="false" type="purepaths" mode="all" />
+      <criterion showrendering="true" isactive="false" contenttypegroupsmode="all" javascripttriggersmode="all" shownetwork="true" showjavascript="true" type="riapurepathtype" requestcriterion="ALL" />
+      <criterion includemeasurename="true" includetestname="true" type="tests" teststatus="OK" />
+      <criterion enabled="false" filterbyid="false" type="threads" />
+      <criterion type="timeframe">
+        <timeframe start="0" type="Auto" end="9223372036854775807" />
+      </criterion>
+      <criterion type="visits">
+        <visitidset visitsidsetsize="0" />
+      </criterion>
+      <criterion type="webpage">
+        <textpattern enabled="true" name="timerName" type="contains" />
+        <textpattern enabled="true" name="pageContext" type="contains" />
+      </criterion>
+      <criterion type="webrequest">
+        <filteruripattern>
+          <stringmatchpattern text="" match="contains" />
+        </filteruripattern>
+        <filterquerypattern>
+          <stringmatchpattern text="" match="contains" />
+        </filterquerypattern>
+      </criterion>
+    </filter>
+    <autorefreshconfig unit="MINUTES" enabled="false" time="5" />
+    <designconfig descriptionalignment="CENTER" descriptionfontstyle="NORMAL" namealignment="CENTER" descriptionfontsize="8" nameshow="true" clienttheme="DEFAULT" headertype="DEFAULT" namefontsize="10" descriptionshow="true" autoadjustfontsizes="false" namefontstyle="BOLD" descriptionfontcolor="128,128,128" />
+    <dashboardlayout>
+      <portletfolder relationtype="LEFT" ratio="0.95" folderid="47656ce2-944d-4a3b-9772-53dc5af39957" selectionindex="0" relatedfolderid="DashboardLayout.blankArea" portletconfigorder="f789c35c-f56c-4f01-800e-8fe14e79efe9">
+        <designconfig descriptionalignment="CENTER" descriptionfontstyle="NORMAL" namealignment="CENTER" inherited="false" descriptionfontsize="8" nameshow="true" headertype="CUSTOM" namefontsize="10" descriptionshow="true" namefontstyle="BOLD" descriptionfontcolor="128,128,128" />
+      </portletfolder>
+      <portletfolder relationtype="BOTTOM" ratio="0.49931225" folderid="org.eclipse.ui.internal.ViewStack@1db58bc" selectionindex="0" relatedfolderid="47656ce2-944d-4a3b-9772-53dc5af39957" portletconfigorder="b40557d9-a9e2-48eb-bf53-749b01917ddd">
+        <designconfig descriptionalignment="CENTER" descriptionfontstyle="NORMAL" namealignment="CENTER" inherited="false" descriptionfontsize="8" nameshow="true" headertype="CUSTOM" namefontsize="10" descriptionshow="true" namefontstyle="BOLD" descriptionfontcolor="128,128,128" />
+      </portletfolder>
+      <portletfolder relationtype="RIGHT" ratio="0.499336" folderid="org.eclipse.ui.internal.ViewStack@5c6fc6" selectionindex="0" relatedfolderid="org.eclipse.ui.internal.ViewStack@1db58bc" portletconfigorder="c1120697-e7e9-4ed2-8bfc-b0b35878e843">
+        <designconfig descriptionalignment="CENTER" descriptionfontstyle="NORMAL" namealignment="CENTER" inherited="false" descriptionfontsize="8" nameshow="true" headertype="CUSTOM" namefontsize="10" descriptionshow="true" namefontstyle="BOLD" descriptionfontcolor="128,128,128" />
+      </portletfolder>
+      <portletfolder relationtype="RIGHT" ratio="0.42198357" folderid="org.eclipse.ui.internal.ViewStack@1f28743" selectionindex="0" relatedfolderid="47656ce2-944d-4a3b-9772-53dc5af39957" portletconfigorder="7b441fa2-3b23-48ad-b140-fb4f666aae07">
+        <designconfig descriptionalignment="CENTER" descriptionfontstyle="NORMAL" namealignment="CENTER" inherited="false" descriptionfontsize="8" nameshow="true" headertype="CUSTOM" namefontsize="10" descriptionshow="true" namefontstyle="BOLD" descriptionfontcolor="128,128,128" />
+      </portletfolder>
+      <portletfolder relationtype="RIGHT" ratio="0.32456142" folderid="org.eclipse.ui.internal.ViewStack@9e5ceb" selectionindex="0" relatedfolderid="org.eclipse.ui.internal.ViewStack@1f28743" portletconfigorder="e4265467-6139-4af3-8f50-b0ead22bdf2c">
+        <designconfig descriptionalignment="CENTER" descriptionfontstyle="NORMAL" namealignment="CENTER" inherited="false" descriptionfontsize="8" nameshow="true" headertype="CUSTOM" namefontsize="10" descriptionshow="true" namefontstyle="BOLD" descriptionfontcolor="128,128,128" />
+      </portletfolder>
+    </dashboardlayout>
+    <portletconfig usespecificautorefresh="false" icon="com.dynatrace.diagnostics.sdk/default_16x16.png" usedashboardsourceforcompare="true" folderid="org.eclipse.ui.internal.ViewStack@1db58bc" sessiontype="live" locationassource="false" usedashboardsource="true" sessionid="BNYMellon" id="b40557d9-a9e2-48eb-bf53-749b01917ddd" addfilterinfo="false" source="server://r29qc00" description="" lastvalue="false" name="Agent Count per Collector" typeid="com.dynatrace.diagnostics.portlets.chart.DynamicMeasureMatrix" ismaster="false" showabsolutevalues="false" locationascomparesource="false">
+      <reportconfig lines.per.table="100" print.legends="true" enabled="true" optimizeequalcolumns="true" levels.per.tree="10" override="false" print.images="true" reportposition="4" />
+      <filter>
+        <criterion completepurepath="true" type="agents" mode="all">
+          <textpattern enabled="true" name="agentname" type="contains" />
+          <textpattern enabled="true" name="agenthost" type="contains" />
+        </criterion>
+        <criterion type="applications" mode="all" />
+        <criterion completepurepath="true" type="hosts" mode="all" />
+        <criterion type="timeframe">
+          <timeframe start="0" type="Auto" end="9223372036854775807" />
+        </criterion>
+        <criterion type="visits">
+          <visitidset visitsidsetsize="0" />
+        </criterion>
+        <inheritancemap />
+      </filter>
+      <autorefreshconfig unit="MINUTES" enabled="false" time="5" />
+      <sashconfig weights="1,1" displayoption="CHART" />
+      <datamodelconfig>
+        <resolution name="Auto" />
+        <table drawcolumn="-1" columnmode="Measure" sortcolumn="0" structuremode="dmmAgentGroup" columnorder="0,1,2,3,4,5,6">
+          <column index="0" sort="None" forcevisible="false" style="TEXT" hidden="false" width="188" />
+          <column index="1" sort="None" forcevisible="false" style="TEXT" hidden="false" width="85">
+            <chartsource position="1" scale="0" visible="true" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="b45a56a8-9b57-483c-a19c-d574b26d78c8" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Web Server Agents" sourcecolor="RGB(192,0,192,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="true" autoscale="false">
+              <lightweightuniquemeasureidentifier keyid="Web Server Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Web Server Agents" measuretype="MonitorMeasure" metrickeyid="Web Server Agents" agentname="Split by Collector" metricsimpledisplayname="Web Server Agents" />
+              <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+            </chartsource>
+          </column>
+          <column index="2" sort="None" forcevisible="false" style="TEXT" hidden="false" width="67">
+            <chartsource position="2" scale="0" visible="true" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="82558a67-974c-4244-84c0-2efe7ae7b3a8" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="dotNet Agents" sourcecolor="RGB(64,64,64,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="true" autoscale="false">
+              <lightweightuniquemeasureidentifier keyid="dotNet Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="dotNet Agents" measuretype="MonitorMeasure" metrickeyid="dotNet Agents" agentname="Split by Collector" metricsimpledisplayname="dotNet Agents" />
+              <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+            </chartsource>
+          </column>
+          <column index="3" sort="None" forcevisible="false" style="TEXT" hidden="false" width="106">
+            <chartsource position="3" scale="0" visible="true" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="927a0984-ea49-4bee-8771-43737494f410" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Message Broker Agents" sourcecolor="RGB(192,128,0,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="true" autoscale="false">
+              <lightweightuniquemeasureidentifier keyid="Message Broker Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Message Broker Agents" measuretype="MonitorMeasure" metrickeyid="Message Broker Agents" agentname="Split by Collector" metricsimpledisplayname="Message Broker Agents" />
+              <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+            </chartsource>
+          </column>
+          <column index="4" sort="None" forcevisible="false" style="TEXT" hidden="false" width="74">
+            <chartsource position="4" scale="0" visible="true" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="4f7be0e0-702b-4a29-9b7e-1cc9bb261c88" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(128,64,128,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="true" autoscale="false">
+              <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="Split by Collector" metricsimpledisplayname="Licensed Agents" />
+              <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+            </chartsource>
+          </column>
+          <column index="5" sort="None" forcevisible="false" style="TEXT" hidden="false" width="49">
+            <chartsource position="5" scale="0" visible="true" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="74f82809-ec84-44d9-a5c9-b0fd5a09b6d5" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Java Agents" sourcecolor="RGB(128,128,64,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="true" autoscale="false">
+              <lightweightuniquemeasureidentifier keyid="Java Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Java Agents" measuretype="MonitorMeasure" metrickeyid="Java Agents" agentname="Split by Collector" metricsimpledisplayname="Java Agents" />
+              <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+            </chartsource>
+          </column>
+          <column index="6" sort="None" forcevisible="false" style="TEXT" hidden="false" width="79">
+            <chartsource position="6" scale="0" visible="true" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="4de70e60-0d1d-430b-8ee3-d79082c0048c" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Unlicensed Agents" sourcecolor="RGB(128,64,0,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="true" autoscale="false">
+              <lightweightuniquemeasureidentifier keyid="Unlicensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Unlicensed Agents" measuretype="MonitorMeasure" metrickeyid="Unlicensed Agents" agentname="Split by Collector" metricsimpledisplayname="Unlicensed Agents" />
+              <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+            </chartsource>
+          </column>
+        </table>
+      </datamodelconfig>
+      <chartcolors />
+    </portletconfig>
+    <portletconfig usespecificautorefresh="false" icon="com.dynatrace.diagnostics.sdk/chart_cust.png" usedashboardsourceforcompare="true" folderid="org.eclipse.ui.internal.ViewStack@5c6fc6" sessiontype="live" locationassource="false" usedashboardsource="true" sessionid="BNYMellon" id="c1120697-e7e9-4ed2-8bfc-b0b35878e843" addfilterinfo="false" source="server://r29qc00" description="" lastvalue="false" name="Total Agent Count Per Collector (last 24 hrs)" typeid="com.dynatrace.diagnostics.portlets.chart.Chart" ismaster="false" showabsolutevalues="false" locationascomparesource="false">
+      <reportconfig lines.per.table="100" print.legends="true" enabled="true" optimizeequalcolumns="true" levels.per.tree="10" override="false" print.images="true" reportposition="3" />
+      <filter>
+        <criterion completepurepath="true" type="agents" mode="all">
+          <textpattern enabled="true" name="agentname" type="contains" />
+          <textpattern enabled="true" name="agenthost" type="contains" />
+        </criterion>
+        <criterion type="applications" mode="all" />
+        <criterion type="btm" />
+        <criterion completepurepath="true" type="hosts" mode="all" />
+        <criterion type="timeframe">
+          <timeframe type="Last 24h" />
+        </criterion>
+        <criterion type="visits">
+          <visitidset visitsidsetsize="0" />
+        </criterion>
+        <inheritancemap>
+          <inheritanceentry inherited="false" type="timeframe" />
+        </inheritancemap>
+      </filter>
+      <autorefreshconfig unit="MINUTES" enabled="false" time="5" />
+      <sashconfig weights="500,500" displayoption="CHART" />
+      <datamodelconfig>
+        <chart maxdisplayitems="10" axis.x.title="" legendposition="Bottom" zoomable="true" showtooltips="true" charttype="LineChart" resolution="Auto" isentitymarkable="false" title="" showlabels="true" yaxisalignment="0" showname="true" splitcharts="false" bounds.y.enabled="false" axis.y.show="true" orientation="Horizontal" lockyaxis="true" axis.y.title="" axis.y.title.show="false" limititems="false" axis.x.show="true" axis.x.title.show="false" logxaxis="false" showheatfield="false" showvalues="false" showtitle="false" showlegend="true">
+          <legendcomposition splittings="true">
+            <pielabelcomposition unit="true" value="true" />
+          </legendcomposition>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="4bfbfc43-bdd8-4b4c-82ca-2481992ad5e7" aggregationtype="Max" uiunit="number" groupingvalue="" id="8dced0ab-7c66-31c7-9e50-8771a2f4d17a" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(229,145,77,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="Collector Name" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <tagtolabel>
+              <taglabelentry value="Collector Name" key="Collector Name" />
+            </tagtolabel>
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="-" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="-" metricsimpledisplayname="Licensed Agents">
+              <tag value="r29pc0v_instance1" type="0" key="Collector Name" />
+            </lightweightuniquemeasureidentifier>
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="4bfbfc43-bdd8-4b4c-82ca-2481992ad5e7" aggregationtype="Max" uiunit="number" groupingvalue="" id="08a263a2-a5e1-3712-80f1-d3baa3b4e49c" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(222,140,33,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="Collector Name" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <tagtolabel>
+              <taglabelentry value="Collector Name" key="Collector Name" />
+            </tagtolabel>
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="-" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="-" metricsimpledisplayname="Licensed Agents">
+              <tag value="r29pc0v_instance3" type="0" key="Collector Name" />
+            </lightweightuniquemeasureidentifier>
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="4bfbfc43-bdd8-4b4c-82ca-2481992ad5e7" aggregationtype="Max" uiunit="number" groupingvalue="" id="2a915b03-5b2d-356e-ba83-c1c3ea14ddc2" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(221,34,113,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="Collector Name" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <tagtolabel>
+              <taglabelentry value="Collector Name" key="Collector Name" />
+            </tagtolabel>
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="-" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="-" metricsimpledisplayname="Licensed Agents">
+              <tag value="r46vp0v_instance1" type="0" key="Collector Name" />
+            </lightweightuniquemeasureidentifier>
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="1" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Max" uiunit="number" groupingvalue="" id="4bfbfc43-bdd8-4b4c-82ca-2481992ad5e7" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(128,64,128,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="Collector Name" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <tagtolabel>
+              <taglabelentry value="Collector Name" key="Collector Name" />
+            </tagtolabel>
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="Split by Collector" metricsimpledisplayname="Licensed Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Collector" measureunit="number" monitorscheduleid="Split by Collector" measurerate="purepath" />
+          </chartsource>
+          <splitconfig splitmode="PerSeries" splitlayout="Horizontal" />
+        </chart>
+        <table drawcolumn="-1" sortcolumn="16" structuremode="measureHierarchy" columnorder="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19">
+          <column index="0" sort="None" forcevisible="false" hidden="false" width="400" />
+          <column index="1" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="2" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="3" sort="None" forcevisible="false" hidden="false" width="25" />
+          <column index="4" sort="None" forcevisible="false" hidden="false" width="100" />
+          <column index="5" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="6" sort="None" forcevisible="false" hidden="false" width="50" />
+          <column index="7" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="8" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="9" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="10" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="11" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="12" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="13" sort="None" forcevisible="false" hidden="false" width="105" />
+          <column index="14" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="15" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="16" sort="Up" forcevisible="false" hidden="false" width="100" />
+          <column index="17" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="18" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="19" sort="None" forcevisible="false" hidden="true" width="150" />
+        </table>
+        <heatfieldconfig smartmeasure="true" filterconfirmed="false" smartserver="true" customevents="true">
+          <incidentrules />
+        </heatfieldconfig>
+      </datamodelconfig>
+      <chartcolors />
+    </portletconfig>
+    <portletconfig usespecificautorefresh="false" icon="com.dynatrace.diagnostics.sdk/chart_cust.png" usedashboardsourceforcompare="true" folderid="org.eclipse.ui.internal.ViewStack@9e5ceb" sessiontype="live" locationassource="false" usedashboardsource="true" sessionid="BNYMellon" id="e4265467-6139-4af3-8f50-b0ead22bdf2c" addfilterinfo="false" source="server://r29qc00" description="" lastvalue="false" name="Total Agent Count (last 24 hrs)" typeid="com.dynatrace.diagnostics.portlets.chart.Chart" ismaster="false" showabsolutevalues="false" locationascomparesource="false">
+      <reportconfig lines.per.table="100" print.legends="true" enabled="true" optimizeequalcolumns="true" levels.per.tree="10" override="false" print.images="true" reportposition="2" />
+      <filter>
+        <criterion completepurepath="true" type="agents" mode="all">
+          <textpattern enabled="true" name="agentname" type="contains" />
+          <textpattern enabled="true" name="agenthost" type="contains" />
+        </criterion>
+        <criterion type="applications" mode="all" />
+        <criterion type="btm" />
+        <criterion completepurepath="true" type="hosts" mode="all" />
+        <criterion type="timeframe">
+          <timeframe type="Last 24h" />
+        </criterion>
+        <criterion type="visits">
+          <visitidset visitsidsetsize="0" />
+        </criterion>
+        <inheritancemap>
+          <inheritanceentry inherited="false" type="timeframe" />
+        </inheritancemap>
+      </filter>
+      <autorefreshconfig unit="MINUTES" enabled="false" time="5" />
+      <sashconfig weights="500,500" displayoption="CHART" />
+      <datamodelconfig>
+        <chart maxdisplayitems="10" axis.x.title="" legendposition="Bottom" zoomable="true" showtooltips="true" charttype="LineChart" resolution="Auto" isentitymarkable="false" title="" showlabels="true" yaxisalignment="0" showname="true" splitcharts="false" bounds.y.enabled="false" axis.y.show="true" orientation="Horizontal" lockyaxis="true" axis.y.title="" axis.y.title.show="false" limititems="false" axis.x.show="true" axis.x.title.show="false" logxaxis="false" showheatfield="false" showvalues="false" showtitle="false" showlegend="true">
+          <legendcomposition measure="true">
+            <pielabelcomposition unit="true" value="true" />
+          </legendcomposition>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="5c82643a-97c7-4710-aa59-b39ce2cbb008" aggregationtype="Max" uiunit="number" groupingvalue="" id="f5a4cbfe-1f67-3fc8-96a2-e6cc6d0dc796" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(235,122,122,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="r29qc00" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="No Split" metricsimpledisplayname="Licensed Agents" />
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="1" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Max" uiunit="number" groupingvalue="" id="5c82643a-97c7-4710-aa59-b39ce2cbb008" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(128,64,128,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="No Split" metricsimpledisplayname="Licensed Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <splitconfig splitmode="PerSeries" splitlayout="Horizontal" />
+        </chart>
+        <table drawcolumn="-1" sortcolumn="16" structuremode="measureHierarchy" columnorder="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19">
+          <column index="0" sort="None" forcevisible="false" hidden="false" width="400" />
+          <column index="1" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="2" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="3" sort="None" forcevisible="false" hidden="false" width="25" />
+          <column index="4" sort="None" forcevisible="false" hidden="false" width="100" />
+          <column index="5" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="6" sort="None" forcevisible="false" hidden="false" width="50" />
+          <column index="7" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="8" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="9" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="10" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="11" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="12" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="13" sort="None" forcevisible="false" hidden="false" width="105" />
+          <column index="14" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="15" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="16" sort="Up" forcevisible="false" hidden="false" width="100" />
+          <column index="17" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="18" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="19" sort="None" forcevisible="false" hidden="true" width="150" />
+        </table>
+        <heatfieldconfig smartmeasure="true" filterconfirmed="false" smartserver="true" customevents="true">
+          <incidentrules />
+        </heatfieldconfig>
+      </datamodelconfig>
+      <chartcolors />
+    </portletconfig>
+    <portletconfig usespecificautorefresh="false" icon="com.dynatrace.diagnostics.sdk/chart_cust.png" usedashboardsourceforcompare="true" folderid="47656ce2-944d-4a3b-9772-53dc5af39957" sessiontype="live" locationassource="false" usedashboardsource="true" sessionid="BNYMellon" id="f789c35c-f56c-4f01-800e-8fe14e79efe9" addfilterinfo="false" source="server://r29qc00" description="" lastvalue="false" name="Total Agent Count" typeid="com.dynatrace.diagnostics.portlets.chart.Chart" ismaster="false" showabsolutevalues="false" locationascomparesource="false">
+      <reportconfig lines.per.table="100" print.legends="true" enabled="true" optimizeequalcolumns="true" levels.per.tree="10" override="false" print.images="true" reportposition="1" />
+      <filter>
+        <criterion completepurepath="true" type="agents" mode="all">
+          <textpattern enabled="true" name="agentname" type="contains" />
+          <textpattern enabled="true" name="agenthost" type="contains" />
+        </criterion>
+        <criterion type="applications" mode="all" />
+        <criterion type="btm" />
+        <criterion completepurepath="true" type="hosts" mode="all" />
+        <criterion type="timeframe">
+          <timeframe start="0" type="Auto" end="9223372036854775807" />
+        </criterion>
+        <criterion type="visits">
+          <visitidset visitsidsetsize="0" />
+        </criterion>
+        <inheritancemap />
+      </filter>
+      <autorefreshconfig unit="MINUTES" enabled="false" time="5" />
+      <sashconfig weights="500,500" displayoption="CHART" />
+      <datamodelconfig>
+        <chart maxdisplayitems="10" axis.x.title="" legendposition="Bottom" zoomable="true" showtooltips="true" charttype="MeterChart" resolution="Auto" isentitymarkable="false" title="" showlabels="true" yaxisalignment="0" showname="true" splitcharts="true" bounds.y.enabled="false" axis.y.show="true" orientation="Horizontal" lockyaxis="true" axis.y.title="" axis.y.title.show="false" limititems="false" axis.x.show="true" axis.x.title.show="false" logxaxis="false" showheatfield="true" showvalues="false" showtitle="false" showlegend="true">
+          <legendcomposition measure="true">
+            <pielabelcomposition unit="true" value="true" />
+          </legendcomposition>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="5f648da7-4731-4488-8c29-e7075ca21d00" aggregationtype="Last" uiunit="number" groupingvalue="" id="810378b9-1abe-37f0-bf21-2e23851b0a53" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Java Agents" sourcecolor="RGB(242,166,166,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Java Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="r29qc00" parentkeyid="Java Agents" measuretype="MonitorMeasure" metrickeyid="Java Agents" agentname="No Split" metricsimpledisplayname="Java Agents" />
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="0498ef25-0b0d-448a-b2b4-4ce50d4f3293" aggregationtype="Last" uiunit="number" groupingvalue="" id="8c0c54a0-232f-35c9-8bdf-bafb01f022cb" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Unlicensed Agents" sourcecolor="RGB(89,32,13,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Unlicensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="r29qc00" parentkeyid="Unlicensed Agents" measuretype="MonitorMeasure" metrickeyid="Unlicensed Agents" agentname="No Split" metricsimpledisplayname="Unlicensed Agents" />
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="1" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="a41f4054-f2d6-4a85-be33-8286ea9ab0d0" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(128,64,128,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="No Split" metricsimpledisplayname="Licensed Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="c5c1a8ff-a199-4653-a73f-d24a6b35bc61" aggregationtype="Last" uiunit="number" groupingvalue="" id="b4e03725-b913-3e2a-81b3-6d989bb71b30" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Message Broker Agents" sourcecolor="RGB(242,231,166,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Message Broker Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="r29qc00" parentkeyid="Message Broker Agents" measuretype="MonitorMeasure" metrickeyid="Message Broker Agents" agentname="No Split" metricsimpledisplayname="Message Broker Agents" />
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="4" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="c5c1a8ff-a199-4653-a73f-d24a6b35bc61" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Message Broker Agents" sourcecolor="RGB(192,128,0,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Message Broker Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Message Broker Agents" measuretype="MonitorMeasure" metrickeyid="Message Broker Agents" agentname="No Split" metricsimpledisplayname="Message Broker Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="3" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="d51a4c92-9326-4574-9c22-55251b1e1648" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="dotNet Agents" sourcecolor="RGB(64,64,64,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="dotNet Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="dotNet Agents" measuretype="MonitorMeasure" metrickeyid="dotNet Agents" agentname="No Split" metricsimpledisplayname="dotNet Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="5" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="e7aec736-2082-4e6d-bc19-6aea1021a41a" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Web Server Agents" sourcecolor="RGB(192,0,192,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Web Server Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Web Server Agents" measuretype="MonitorMeasure" metrickeyid="Web Server Agents" agentname="No Split" metricsimpledisplayname="Web Server Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="a41f4054-f2d6-4a85-be33-8286ea9ab0d0" aggregationtype="Last" uiunit="number" groupingvalue="" id="f50c2669-44bd-3be9-9fde-e185ab6fd507" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(177,27,90,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="r29qc00" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="No Split" metricsimpledisplayname="Licensed Agents" />
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="e7aec736-2082-4e6d-bc19-6aea1021a41a" aggregationtype="Last" uiunit="number" groupingvalue="" id="f89db8a7-3175-3280-8d6a-efbcf5f40be4" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Web Server Agents" sourcecolor="RGB(229,185,77,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Web Server Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="r29qc00" parentkeyid="Web Server Agents" measuretype="MonitorMeasure" metrickeyid="Web Server Agents" agentname="No Split" metricsimpledisplayname="Web Server Agents" />
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="6" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="0498ef25-0b0d-448a-b2b4-4ce50d4f3293" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Unlicensed Agents" sourcecolor="RGB(128,64,0,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Unlicensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Unlicensed Agents" measuretype="MonitorMeasure" metrickeyid="Unlicensed Agents" agentname="No Split" metricsimpledisplayname="Unlicensed Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="d51a4c92-9326-4574-9c22-55251b1e1648" aggregationtype="Last" uiunit="number" groupingvalue="" id="56307f4f-6fe2-3978-9603-5ecb40ea1778" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="dotNet Agents" sourcecolor="RGB(178,178,26,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="dotNet Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="r29qc00" parentkeyid="dotNet Agents" measuretype="MonitorMeasure" metrickeyid="dotNet Agents" agentname="No Split" metricsimpledisplayname="dotNet Agents" />
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="2" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="5f648da7-4731-4488-8c29-e7075ca21d00" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Java Agents" sourcecolor="RGB(128,128,64,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="AgentOrMonitor" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <lightweightuniquemeasureidentifier keyid="Java Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Java Agents" measuretype="MonitorMeasure" metrickeyid="Java Agents" agentname="No Split" metricsimpledisplayname="Java Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="No Split" measureunit="number" monitorscheduleid="No Split" measurerate="purepath" />
+          </chartsource>
+          <splitconfig splitmode="PerSeries" splitlayout="Horizontal" />
+        </chart>
+        <table drawcolumn="-1" sortcolumn="16" structuremode="measureHierarchy" columnorder="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19">
+          <column index="0" sort="None" forcevisible="false" hidden="false" width="400" />
+          <column index="1" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="2" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="3" sort="None" forcevisible="false" hidden="false" width="25" />
+          <column index="4" sort="None" forcevisible="false" hidden="false" width="100" />
+          <column index="5" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="6" sort="None" forcevisible="false" hidden="false" width="50" />
+          <column index="7" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="8" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="9" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="10" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="11" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="12" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="13" sort="None" forcevisible="false" hidden="false" width="105" />
+          <column index="14" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="15" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="16" sort="Up" forcevisible="false" hidden="false" width="100" />
+          <column index="17" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="18" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="19" sort="None" forcevisible="false" hidden="true" width="150" />
+        </table>
+        <heatfieldconfig smartmeasure="true" filterconfirmed="false" smartserver="true" customevents="true">
+          <incidentrules />
+        </heatfieldconfig>
+      </datamodelconfig>
+      <chartcolors />
+    </portletconfig>
+    <portletconfig usespecificautorefresh="false" icon="com.dynatrace.diagnostics.sdk/chart_cust.png" usedashboardsourceforcompare="true" folderid="org.eclipse.ui.internal.ViewStack@1f28743" sessiontype="live" locationassource="false" usedashboardsource="true" sessionid="BNYMellon" id="7b441fa2-3b23-48ad-b140-fb4f666aae07" addfilterinfo="false" source="server://r29qc00" description="" lastvalue="false" name="Total Agent Count per Agent Version" typeid="com.dynatrace.diagnostics.portlets.chart.Chart" ismaster="false" showabsolutevalues="false" locationascomparesource="false">
+      <reportconfig lines.per.table="100" print.legends="true" enabled="true" optimizeequalcolumns="true" levels.per.tree="10" override="false" print.images="true" reportposition="5" />
+      <filter>
+        <criterion completepurepath="true" type="agents" mode="all">
+          <textpattern enabled="true" name="agentname" type="contains" />
+          <textpattern enabled="true" name="agenthost" type="contains" />
+        </criterion>
+        <criterion type="applications" mode="all" />
+        <criterion type="btm" />
+        <criterion completepurepath="true" type="hosts" mode="all" />
+        <criterion type="timeframe">
+          <timeframe start="0" type="Auto" end="9223372036854775807" />
+        </criterion>
+        <criterion type="visits">
+          <visitidset visitsidsetsize="0" />
+        </criterion>
+        <inheritancemap />
+      </filter>
+      <autorefreshconfig unit="MINUTES" enabled="false" time="5" />
+      <sashconfig weights="500,500" displayoption="CHART" />
+      <datamodelconfig>
+        <chart maxdisplayitems="10" axis.x.title="" legendposition="Bottom" zoomable="true" showtooltips="true" charttype="MeterChart" resolution="Auto" isentitymarkable="false" title="" showlabels="true" yaxisalignment="0" showname="true" splitcharts="true" bounds.y.enabled="false" axis.y.show="true" orientation="Vertical" lockyaxis="true" axis.y.title="" axis.y.title.show="true" limititems="false" axis.x.show="true" axis.x.title.show="true" logxaxis="false" showheatfield="true" showvalues="false" showtitle="false" showlegend="true">
+          <legendcomposition splittings="true">
+            <pielabelcomposition unit="true" value="true" />
+          </legendcomposition>
+          <chartsource position="-1" scale="0" visible="true" sessiontype="live" parentid="2bb1d0c3-708b-4f22-aa24-9398ce848356" aggregationtype="Last" uiunit="number" groupingvalue="" id="eb9c6e29-0d6d-3e96-808b-2af9dd8c34bd" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(176,166,242,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="true" autounit="false" sessionid="BNYMellon" groupingcriterion="Version Number" displayrate="10s" unit="number" systemid="BNYMellon" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <tagtolabel>
+              <taglabelentry value="Version Number" key="Version Number" />
+            </tagtolabel>
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="-" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="-" metricsimpledisplayname="Licensed Agents">
+              <tag value="5.5.0.5226" type="0" key="Version Number" />
+            </lightweightuniquemeasureidentifier>
+            <displaysourceinfo monitorhost="r29qc00" monitordetails="Split by Agent Version" measureunit="number" monitorscheduleid="Split by Agent Version" measurerate="purepath" />
+          </chartsource>
+          <chartsource position="1" scale="0" visible="false" sessiontype="live" colorinheritancemode="random" aggregationtype="Last" uiunit="number" groupingvalue="" id="2bb1d0c3-708b-4f22-aa24-9398ce848356" fetchmeasurecolor="false" overridesource="true" rate="10s" ratesupported="true" name="Licensed Agents" sourcecolor="RGB(0,128,128,255)" sourcetype="MEASURE" fetchbaseline="false" dynamicconfig="false" autounit="false" sessionid="BNYMellon" groupingcriterion="Version Number" displayrate="10s" systemid="BNYMellon" unit="number" measuretype="MonitorMeasure" fetch.dynamic.measures="true" fetchthreshold="false" autoscale="false">
+            <tagtolabel>
+              <taglabelentry value="Version Number" key="Version Number" />
+            </tagtolabel>
+            <lightweightuniquemeasureidentifier keyid="Licensed Agents" metricgroupkey="Agent Count" collector="" systemid="BNYMellon" application="" agenthost="" parentkeyid="Licensed Agents" measuretype="MonitorMeasure" metrickeyid="Licensed Agents" agentname="Split by Agent Version" metricsimpledisplayname="Licensed Agents" />
+            <displaysourceinfo monitorhost="&lt;all-hosts&gt;" monitordetails="Split by Agent Version" measureunit="number" monitorscheduleid="Split by Agent Version" measurerate="purepath" />
+          </chartsource>
+          <splitconfig splitmode="Measure" splitlayout="Vertical" />
+        </chart>
+        <table drawcolumn="-1" sortcolumn="16" structuremode="measureHierarchy" columnorder="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19">
+          <column index="0" sort="None" forcevisible="false" hidden="false" width="400" />
+          <column index="1" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="2" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="3" sort="None" forcevisible="false" hidden="false" width="25" />
+          <column index="4" sort="None" forcevisible="false" hidden="false" width="100" />
+          <column index="5" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="6" sort="None" forcevisible="false" hidden="false" width="50" />
+          <column index="7" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="8" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="9" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="10" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="11" sort="None" forcevisible="false" hidden="true" width="75" />
+          <column index="12" sort="None" forcevisible="false" hidden="true" width="100" />
+          <column index="13" sort="None" forcevisible="false" hidden="false" width="105" />
+          <column index="14" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="15" sort="None" forcevisible="false" hidden="true" width="50" />
+          <column index="16" sort="Up" forcevisible="false" hidden="false" width="100" />
+          <column index="17" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="18" sort="None" forcevisible="false" hidden="true" width="150" />
+          <column index="19" sort="None" forcevisible="false" hidden="true" width="150" />
+        </table>
+        <heatfieldconfig smartmeasure="true" filterconfirmed="false" smartserver="true" customevents="true">
+          <incidentrules />
+        </heatfieldconfig>
+      </datamodelconfig>
+      <chartcolors />
+    </portletconfig>
+  </dashboardconfig>
+</dynatrace>
+
