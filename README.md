@@ -60,7 +60,7 @@ The plugin can filter or dynamically split on the following items:
 || [com.dynatrace.license.count_1.5.0.jar](com.dynatrace.license.count_1.5.0.jar)
 || [com.dynatrace.license.count_1.6.0.jar](com.dynatrace.license.count_1.6.0.jar)
 || [com.dynatrace.license.count_1.7.0.jar](com.dynatrace.license.count_1.7.0.jar)
-|| [System Health - License Count.dashboard.xml](System_Health__License_Count.dashboard.xml)
+|| [System Health - License Count.dashboard.xml](System_Health_-_License_Count.dashboard.xml)
 
 ## Configuration
 
