@@ -41,4 +41,4 @@ The plugin can filter or dynamically split on the following items:
 
   * Agent Version 
 
-Find further information in the [dynaTrace community](https://community.compuwareapm.com/community/display/DL/License+Count)
+Find further information in the [dynaTrace community](https://community.dynatrace.com/community/display/DL/License+Count)
