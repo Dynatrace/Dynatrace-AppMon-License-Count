@@ -10,13 +10,13 @@
       <supportlevel value="unsupported" />
     </information>
     <configuration>
-      <property key="protocol" label="Protocol" type="list" description="Please select the protocol that will be used to establish the connection." default="http">
-        <list>
-          <item value="http" />
-          <item value="https" />
-        </list>
-      </property>
-      <property key="httpPort" label="Port" type="long" description="Enter the port number of the webserver. The default HTTP port is 8020 and HTTPS port is 8021." default="8020" />
+	  <property key="protocol" label="Protocol" type="list" description="Please select the protocol that will be used to establish the connection." default="http">
+		<list>
+		  <item value="http" />
+		  <item value="https" />
+		</list>
+	  </property>
+	  <property key="httpPort" label="Port" type="long" description="Enter the port number of the webserver. The default HTTP port is 8020 and HTTPS port is 8021." default="8020" />
       <property key="agentURL" label="Agent Overview URL" type="string" description="Enter the path to the webpage to be monitored. Example: /rest/management/..." default="/rest/management/reports/create/..." multiline="false" />
       <property key="username" label="Username" type="string" description="Please enter a username with at least read access to the agent overview dashboard" default="" multiline="false" />
       <property key="password" label="Password" type="password" description="Please enter the password for the user above." default="" />
@@ -29,7 +29,7 @@
           <item value="Agent Version" />
         </list>
       </property>
-      <property key="agentGroup" label="And Split by Agent Group" type="boolean" description="Would you like to also split by Agent Group?" default="false">
+	  <property key="agentGroup" label="And Split by Agent Group" type="boolean" description="Would you like to also split by Agent Group?" default="false">
         <visibility>
           <rule key="systemSplit" value="System Profile" />
         </visibility>
@@ -84,3 +84,4 @@
     </metricgroup>
   </extension>
 </plugin>
+

@@ -363,16 +363,18 @@ public class counter implements Monitor {
 					log.finer("Entering split by No Splitting");
 					
 					//if they want no splitting
-					java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-					web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-					mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-					nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-					phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-					cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-					dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-					dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+					java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+					web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+					mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+					nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+					phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+					cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+					dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+					dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 					licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok')])",xmlDoc,XPathConstants.NUMBER);
-					unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+                    //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+					//unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+					unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))])",xmlDoc,XPathConstants.NUMBER);
 					
 					collectStaticMetrics(env, xpath);
 					
@@ -405,16 +407,18 @@ public class counter implements Monitor {
 						
 						String tempVersionName = arrayVersion[i];
 						
-						java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-						web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-						mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-						nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-						phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-						cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-						dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-						dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @version='" + tempVersionName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+						java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+						web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+						mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+						nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+						phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+						cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+						dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+						dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @version='" + tempVersionName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 						licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "'])",xmlDoc,XPathConstants.NUMBER);
-						unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @version='" + tempVersionName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+                        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+                        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @version='" + tempVersionName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+                        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@version='" + tempVersionName + "')])",xmlDoc,XPathConstants.NUMBER);
 						
 						collectDynamicMetrics(env, xpath, "Version Number", tempVersionName);
 					}	
@@ -509,16 +513,18 @@ public class counter implements Monitor {
 		
 		log.finer("Entering staticMetricsSystemProfile method");
 		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + profileName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + profileName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "'])",xmlDoc,XPathConstants.NUMBER);
-		unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + profileName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + profileName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@system='" + profileName + "')])",xmlDoc,XPathConstants.NUMBER);
 		
 		collectStaticMetrics(env, xpath);
 		
@@ -530,16 +536,18 @@ public class counter implements Monitor {
 		
 		log.finer("Entering staticMetricsHost method");
 		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + hostName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + hostName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "'])",xmlDoc,XPathConstants.NUMBER);
-		unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @host='" + hostName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @host='" + hostName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@host='" + hostName + "')])",xmlDoc,XPathConstants.NUMBER);
 		
 		collectStaticMetrics(env, xpath);
 		
@@ -552,16 +560,18 @@ public class counter implements Monitor {
 
 		log.finer("Entering staticMetricsCollector method");
 		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + collectorName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + collectorName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "'])",xmlDoc,XPathConstants.NUMBER);
-		unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @collector='" + collectorName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @collector='" + collectorName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@collector='" + collectorName + "')])",xmlDoc,XPathConstants.NUMBER);
 		
 		collectStaticMetrics(env, xpath);
 		
@@ -681,32 +691,36 @@ public class counter implements Monitor {
 				
 				String tempAgentGroupName = arrayAgentGroup[i];
 				
-				java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @group='" + tempAgentGroupName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-				web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-				mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-				nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-				phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-				cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-				dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-				dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+				java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @group='" + tempAgentGroupName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+				web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+				mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+				nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+				phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+				cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+				dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+				dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 				licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "'])",xmlDoc,XPathConstants.NUMBER);
-				unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+                //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+                //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+                unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "')])",xmlDoc,XPathConstants.NUMBER);
 				
 				collectDynamicMetrics(env, xpath, "Profile Name/Agent Group", tempProfileName + "/" + tempAgentGroupName);
 			}
 		}
 		else
 		{
-			java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-			web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-			mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-			nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-			phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-			cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-			dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-			dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+			java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+			web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+			mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+			nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+			phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+			cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+			dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+			dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 			licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "'])",xmlDoc,XPathConstants.NUMBER);
-			unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + tempProfileName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+            //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+            //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + tempProfileName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+            unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@system='" + tempProfileName + "')])",xmlDoc,XPathConstants.NUMBER);
 			
 			collectDynamicMetrics(env, xpath, "Profile Name", tempProfileName);
 		}
@@ -718,16 +732,18 @@ public class counter implements Monitor {
 		
 		log.finer("Entering dynamicMetricsHost method");
 		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + tempHostName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + tempHostName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "'])",xmlDoc,XPathConstants.NUMBER);
-		unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @host='" + tempHostName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @host='" + tempHostName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@host='" + tempHostName + "')])",xmlDoc,XPathConstants.NUMBER);
 		
 		collectDynamicMetrics(env, xpath, "Host Name", tempHostName);
 		
@@ -739,16 +755,18 @@ public class counter implements Monitor {
 		
 		log.finer("Entering dynamicMetricsCollector method");
 		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='Java'])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='Web server'])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='WebSphere Message Broker'])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='Native'])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='PHP'])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='CICS'])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='.NET'])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + tempCollectorName + "' and @technologydesc='.NET']", xmlDoc, XPathConstants.NODESET);
+		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
+		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
+		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
+		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
+		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
+		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
+		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
+		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + tempCollectorName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
 		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "'])",xmlDoc,XPathConstants.NUMBER);
-		unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @collector='" + tempCollectorName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
+        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @collector='" + tempCollectorName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
+        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@collector='" + tempCollectorName + "')])",xmlDoc,XPathConstants.NUMBER);
 		
 		collectDynamicMetrics(env, xpath, "Collector Name", tempCollectorName);
 		
