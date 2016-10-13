@@ -75,12 +75,18 @@
       <metric defaultrate="purepath" name="dotNet Hosts" unit="number" description="The number of currently licensed .NET hosts." />
       <metric defaultrate="purepath" name="dotNet Agents" unit="number" description="The number of currently licensed .NET agents (not grouped by host)." />
       <metric defaultrate="purepath" name="Web Server Agents" unit="number" description="The number of currently licensed Web server agents." />
+      <metric defaultrate="purepath" name="Web Server Agents_IIS" unit="number" description="The number of currently licensed IIS Web server agents." />
+      <metric defaultrate="purepath" name="Web Server Hosts_IIS" unit="number" description="The number of currently licensed IIS Web server hosts." />
+      <metric defaultrate="purepath" name="Web Server Agents_Apache" unit="number" description="The number of currently licensed Apache Web server agents." />
+      <metric defaultrate="purepath" name="Web Server Hosts_Apache" unit="number" description="The number of currently licensed Apache Web server hosts." />
       <metric defaultrate="purepath" name="Message Broker Agents" unit="number" description="The number of currently licensed Message Broker agents." />
       <metric defaultrate="purepath" name="Native Agents" unit="number" description="The number of currently licensed Native agents." />
       <metric defaultrate="purepath" name="Unlicensed Agents" unit="number" description="The number of currently unlicensed agents." />
       <metric defaultrate="purepath" name="Licensed Agents" unit="number" description="The number of currently licensed agents." />
-      <metric defaultrate="purepath" name="PHP Agents" unit="number" description="The number of currently PHP agents." />
-      <metric defaultrate="purepath" name="CICS Agents" unit="number" description="The number of currently z/OS CICS agents." />
+      <metric defaultrate="purepath" name="PHP Agents" unit="number" description="The number of currently licensed PHP agents." />
+      <metric defaultrate="purepath" name="CICS Agents" unit="number" description="The number of currently licensed z/OS CICS agents." />
+      <metric defaultrate="purepath" name="Database Agents" unit="number" description="The number of currently licensed Database agents." />
+      <metric defaultrate="purepath" name="NodeJS Agents" unit="number" description="The number of currently licensed Node.JS agents." />
     </metricgroup>
   </extension>
 </plugin>
