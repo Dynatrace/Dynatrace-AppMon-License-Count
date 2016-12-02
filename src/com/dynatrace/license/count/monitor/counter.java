@@ -14,8 +14,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -26,41 +28,41 @@ import java.security.cert.X509Certificate;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.client.ClientProtocolException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
 public class counter implements Monitor {
 
-	private static final Logger log = Logger.getLogger(counter.class.getName());
+	private final Logger log = Logger.getLogger(counter.class.getName());
 
 	// measure constants
-	private static final String METRIC_GROUP = "Agent Count";
-	private static final String MSR_DOT_NET = "dotNet Hosts";
-	private static final String MSR_DOT_NET_INDIVIDUAL = "dotNet Agents";
-	private static final String MSR_JAVA = "Java Agents";
-	private static final String MSR_WEB_SERVER = "Web Server Agents";
-	private static final String MSR_IIS_WS = "Web Server Hosts_IIS";
-	private static final String MSR_IIS_WS_INDIVIDUAL = "Web Server Agents_IIS";
-	private static final String MSR_APACHE_WS = "Web Server Hosts_Apache";
-	private static final String MSR_APACHE_WS_INDIVIDUAL = "Web Server Agents_Apache";
-	private static final String MSR_MESSAGE_BROKER = "Message Broker Agents";
-	private static final String MSR_NATIVE = "Native Agents";
-	private static final String MSR_UNLICENSED = "Unlicensed Agents";
-	private static final String MSR_LICENSED = "Licensed Agents";
-	private static final String MSR_PHP = "PHP Agents";
-	private static final String MSR_CICS = "CICS Agents";
-	private static final String MSR_DB = "Database Agents";
-	private static final String MSR_NODEJS = "NodeJS Agents";
+	private final String METRIC_GROUP = "Agent Count";
+	private final String MSR_DOT_NET = "dotNet Hosts";
+	private final String MSR_DOT_NET_INDIVIDUAL = "dotNet Agents";
+	private final String MSR_JAVA = "Java Agents";
+	private final String MSR_WEB_SERVER = "Web Server Agents";
+	private final String MSR_IIS_WS = "Web Server Hosts_IIS";
+	private final String MSR_IIS_WS_INDIVIDUAL = "Web Server Agents_IIS";
+	private final String MSR_APACHE_WS = "Web Server Hosts_Apache";
+	private final String MSR_APACHE_WS_INDIVIDUAL = "Web Server Agents_Apache";
+	private final String MSR_MESSAGE_BROKER = "Message Broker Agents";
+	private final String MSR_NATIVE = "Native Agents";
+	private final String MSR_UNLICENSED = "Unlicensed Agents";
+	private final String MSR_LICENSED = "Licensed Agents";
+	private final String MSR_PHP = "PHP Agents";
+	private final String MSR_CICS = "CICS Agents";
+	private final String MSR_DB = "Database Agents";
+	private final String MSR_NODEJS = "NodeJS Agents";
 	
 	private Collection<MonitorMeasure>  measures  = null;
 	private MonitorMeasure dynamicMeasure;
+	
+	private NodeList allnodes;
 	
 	private double java;
 	private double web;
@@ -75,22 +77,16 @@ public class counter implements Monitor {
 	private double cicsagent;
 	private double dbagent;
 	private double nodejsagent;
-	private NodeList dotnet;
-	private NodeList web_iis;
-	private NodeList web_apache;
-	
-	private NodeList profilelist;
-	private NodeList agentgrouplist;
-	private NodeList hostlist;
-	private NodeList collectorlist;	
-	private NodeList versionlist;
+	private List<Node> dotnetList;
+	private List<Node> web_iisList;
+	private List<Node> web_apacheList;
 	
 	private URLConnection connection;
 	private URL overviewurl;
 	
 	private String urlprotocol;
 	private int urlport;
-	private String dynaTraceURL;
+	private String restURL;
 	private String username;
 	private String password;
 	
@@ -105,7 +101,8 @@ public class counter implements Monitor {
 	private String[] arraycollectorName;
 	
 	private String split;
-
+	private String xmlPath;
+	
 	@Override
 	public Status setup(MonitorEnvironment env) throws Exception {
 		
@@ -116,10 +113,7 @@ public class counter implements Monitor {
 		urlprotocol = env.getConfigString("protocol");
 		urlport = env.getConfigLong("httpPort").intValue();
 		
-		dynaTraceURL = env.getConfigString("agentURL");
-		dynaTraceURL = dynaTraceURL.replaceAll(" ", "%20");
-		if (!dynaTraceURL.startsWith("/"))
-			dynaTraceURL = "/" + dynaTraceURL;
+		restURL = "/rest/management/agents";
 		
 		username = env.getConfigString("username");
 		password = env.getConfigPassword("password");
@@ -136,16 +130,19 @@ public class counter implements Monitor {
 		
 		split = env.getConfigString("systemSplit");
 		
+		xmlPath = "/agents/agentinformation";
+		
 		log.finer("URL Protocol: " + urlprotocol);
 		log.finer("URL Port: " + urlport);
-		log.finer("dT URL: " + dynaTraceURL);
+		log.finer("REST URL: " + restURL);
 		log.finer("Username: " + username);
 		log.finer("Profile Name: " + profileName);
 		log.finer("Agent Group: " + agentGroup);
 		log.finer("Collector Name: " + collectorName);
 		log.finer("Host Name: " + hostName);
 		log.finer("Split: " + split);
-		
+		log.finer("xmlPath: " + xmlPath);
+				
 		log.finer("Exiting setup method");
 			
 		return new Status(Status.StatusCode.Success);
@@ -153,12 +150,12 @@ public class counter implements Monitor {
 
 	
 	@Override
-	public Status execute(MonitorEnvironment env) throws MalformedURLException{
+	public Status execute(MonitorEnvironment env) throws MalformedURLException {
 		
 		log.finer("Entering execute method");
 		
 		log.finer("Entering URL Setup");
-		overviewurl = new URL(urlprotocol, env.getHost().getAddress(), urlport, dynaTraceURL);		
+		overviewurl = new URL(urlprotocol, env.getHost().getAddress(), urlport, restURL);		
 		
 		log.info("Executing URL: " + overviewurl.toString());
 		log.finer("Executing URL: " + overviewurl.toString());
@@ -181,274 +178,294 @@ public class counter implements Monitor {
 			DocumentBuilderFactory xmlFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = xmlFactory.newDocumentBuilder();
 			Document xmlDoc = docBuilder.parse(responseIS);
-			XPathFactory xpathFact = XPathFactory.newInstance();
-			XPath xpath = xpathFact.newXPath();
-
-			//Java 6 doesn't support a string in the switch statement
-			log.finer("Entering splitting switch statement");
-			int splitSwitch = 0;
-			if (split.equals("System Profile"))
-				splitSwitch = 1;
-			if (split.equals("Host"))
-				splitSwitch = 2;
-			if (split.equals("Collector"))
-				splitSwitch = 3;
-			if (split.equals("No Splitting"))
-				splitSwitch = 4;
-			if (split.equals("Agent Version"))
-				splitSwitch = 5;
-			log.finer("splitSwitch: " + splitSwitch);
+			
+			xmlDoc.getDocumentElement().normalize();
+			allnodes = xmlDoc.getElementsByTagName("agentinformation");
+			log.finer("Number of Nodes: " + allnodes.getLength());
 			
 			//checks for splitting options
-			switch (splitSwitch) {
-				
-				case 1: //"System Profile"
-					
+			switch (split) {
+				case "System Profile": //"System Profile"
 					log.finer("Entering split by System Profile");
+					resetCounts();
 					
 					//used to store unique profile names
 					Set<String> uniqueProfile = new HashSet<String>();
 					
-					//grabs all the unique profile names and puts them in a string array
-					profilelist = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok')]", xmlDoc, XPathConstants.NODESET);
-					
-					for (int i = 0; i < profilelist.getLength(); ++i){
-						String tempstringProfile = profilelist.item(i).getAttributes().getNamedItem("system").toString();
-						String[] arraytempProfile = tempstringProfile.split("\"");
-						uniqueProfile.add(arraytempProfile[1]);
+					for (int i = 0; i < allnodes.getLength(); i++) {						
+						Element element = (Element) allnodes.item(i);
+						uniqueProfile.add(element.getElementsByTagName("systemProfile").item(0).getTextContent());
 					}
 					
 					log.finer("Number of Unique System Profiles: " + uniqueProfile.size());
-					
 					String[] arrayProfile = uniqueProfile.toArray(new String[0]);
 					
-					if (arrayprofileName.length==1){ //either none or one filter
-						if(arrayprofileName[0].equals("")) //uses no filter
-						{
+					if (arrayprofileName.length==1) { //either none or one filter
+						if(arrayprofileName[0].equals("")) { //uses no filter
 							//if they want all System Profiles
 							log.finer("Entering split by all System Profiles");
-							
-							for (int i = 0; i < uniqueProfile.size(); ++i){
+							for (int i = 0; i < uniqueProfile.size(); ++i) {
 								log.finer("Splitting for System Profile: " + arrayProfile[i]);
 								String tempProfileName = arrayProfile[i];
+								resetCounts();
 								
-								dynamicMetricsSystemProfile(env, xpath, tempProfileName, xmlDoc);
-							}	
+								if(agentGroup.equals("true")) {
+									for (int j = 0; j < uniqueProfile.size(); ++j) {
+										//used to store unique agent group names
+										Set<String> uniqueAgentGroup = new HashSet<String>();
+										
+										for (int k = 0; k < allnodes.getLength(); ++k) {
+											Element element = (Element) allnodes.item(k);
+											if (element.getElementsByTagName("systemProfile").item(0).getTextContent().equalsIgnoreCase(tempProfileName))
+												uniqueAgentGroup.add(element.getElementsByTagName("agentGroup").item(0).getTextContent());
+										}
+										
+										log.finer("Number of Unique Agent Groups: " + uniqueAgentGroup.size());
+										String[] arrayAgentGroup = uniqueAgentGroup.toArray(new String[0]);
+										
+										for (int l = 0;l < arrayAgentGroup.length;l++) {
+											log.finer("Splitting for Agent Group: " + arrayAgentGroup[l]);
+											String tempAgentGroupName = arrayAgentGroup[l];
+											resetCounts();
+											
+											analyzeAllNodesDouble("systemProfile", tempProfileName, "agentGroup", tempAgentGroupName);
+											collectDynamicMetrics(env, "System Profile/Agent Group Name", tempProfileName + "/" + tempAgentGroupName);
+										}
+									}
+								}
+								else {
+									analyzeAllNodes("systemProfile", tempProfileName);
+									collectDynamicMetrics(env, "System Profile Name", tempProfileName);
+								}
+							}
 						}
-						else //uses one filter
-						{
+						else { //uses one filter
 							//if they want a specific System Profile
 							log.finer("Entering split by one System Profile");
 							log.finer("Splitting for System Profile: " + profileName);
-							
-							if(agentGroup.equals("false"))
-								staticMetricsSystemProfile(env, xpath, profileName, xmlDoc);
-							else
-								dynamicMetricsSystemProfile(env, xpath, profileName, xmlDoc);
+							if(agentGroup.equals("true")) {
+								resetCounts();
+								
+								//used to store unique agent group names
+								Set<String> uniqueAgentGroup = new HashSet<String>();
+								
+								for (int k = 0; k < allnodes.getLength(); ++k) {
+									Element element = (Element) allnodes.item(k);
+									if (element.getElementsByTagName("systemProfile").item(0).getTextContent().equalsIgnoreCase(profileName))
+										uniqueAgentGroup.add(element.getElementsByTagName("agentGroup").item(0).getTextContent());
+								}
+								
+								log.finer("Number of Unique Agent Groups: " + uniqueAgentGroup.size());
+								String[] arrayAgentGroup = uniqueAgentGroup.toArray(new String[0]);
+								
+								for (int l = 0;l < arrayAgentGroup.length;l++) {
+									log.finer("Splitting for Agent Group: " + arrayAgentGroup[l]);
+									String tempAgentGroupName = arrayAgentGroup[l];
+									resetCounts();
+									
+									analyzeAllNodesDouble("systemProfile", profileName, "agentGroup", tempAgentGroupName);
+									collectDynamicMetrics(env, "System Profile/Agent Group Name", profileName + "/" + tempAgentGroupName);
+								}
+							}
+							else {
+								resetCounts();
+								
+								analyzeAllNodes("systemProfile", profileName);
+								collectDynamicMetrics(env, "System Profile Name", profileName);
+							}
 						}
 					}
-					else
-					{ //uses multiple filters
+					else { //uses multiple filters
 						//if they want multiple System Profiles
 						log.finer("Entering split by multiple System Profiles");
 						
-						for (int i = 0; i < arrayprofileName.length; ++i){
+						for (int i = 0; i < arrayprofileName.length; ++i) {
 							log.finer("Splitting for System Profile: " + arrayprofileName[i]);
 							String tempProfileName = arrayprofileName[i];
 							
-							dynamicMetricsSystemProfile(env, xpath, tempProfileName, xmlDoc);
+							if(agentGroup.equals("true")) {
+								resetCounts();
+								
+								//used to store unique agent group names
+								Set<String> uniqueAgentGroup = new HashSet<String>();
+								
+								for (int k = 0; k < allnodes.getLength(); ++k) {
+									Element element = (Element) allnodes.item(k);
+									if (element.getElementsByTagName("systemProfile").item(0).getTextContent().equalsIgnoreCase(tempProfileName))
+										uniqueAgentGroup.add(element.getElementsByTagName("agentGroup").item(0).getTextContent());
+								}
+								
+								log.finer("Number of Unique Agent Groups: " + uniqueAgentGroup.size());
+								String[] arrayAgentGroup = uniqueAgentGroup.toArray(new String[0]);
+								
+								for (int l = 0;l < arrayAgentGroup.length;l++) {
+									log.finer("Splitting for Agent Group: " + arrayAgentGroup[l]);
+									String tempAgentGroupName = arrayAgentGroup[l];
+									resetCounts();
+									
+									analyzeAllNodesDouble("systemProfile", tempProfileName, "agentGroup", tempAgentGroupName);
+									collectDynamicMetrics(env, "System Profile/Agent Group Name", tempProfileName + "/" + tempAgentGroupName);
+								}
+							}
+							else {
+								resetCounts();
+								
+								analyzeAllNodes("systemProfile", tempProfileName);
+								collectDynamicMetrics(env, "System Profile Name", tempProfileName);
+							}
 						}
 					}
 					break;
-				case 2: //"Host"
-					
+				case "Host": //"Host"
 					log.finer("Entering split by Host");
+					resetCounts();
 					
 					//used to store unique host names
 					Set<String> uniqueHost = new HashSet<String>();
 					
-					//grabs all the unique host names and puts them in a string array
-					hostlist = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok')]", xmlDoc, XPathConstants.NODESET);
-					
-					for (int i = 0; i < hostlist.getLength(); ++i){
-						String tempstringHost = hostlist.item(i).getAttributes().getNamedItem("host").toString();
-						String[] arraytempHost = tempstringHost.split("\"");
-						uniqueHost.add(arraytempHost[1]);
+					for (int i = 0; i < allnodes.getLength(); i++) {						
+						Element element = (Element) allnodes.item(i);
+						uniqueHost.add(element.getElementsByTagName("host").item(0).getTextContent());
 					}
 					
 					log.finer("Number of Unique Hosts: " + uniqueHost.size());
-					
 					String[] arrayHost = uniqueHost.toArray(new String[0]);
 					
-					if (arrayhostName.length==1){ //either none or one filter
-						if(arrayhostName[0].equals("")) //uses no filter
-						{
+					if (arrayhostName.length==1) { //either none or one filter
+						if(arrayhostName[0].equals("")) { //uses no filter
 							//if they want all Hosts
 							log.finer("Entering split by all Hosts");
-							
-							for (int i = 0; i < uniqueHost.size(); ++i){
+							for (int i = 0; i < uniqueHost.size(); ++i) {
 								log.finer("Splitting for Host: " + arrayHost[i]);
 								String tempHostName = arrayHost[i];
+								resetCounts();
 								
-								dynamicMetricsHost(env, xpath, tempHostName, xmlDoc);
-							}	
+								analyzeAllNodes("host", tempHostName);
+								collectDynamicMetrics(env, "Host Name", tempHostName);
+							}
 						}
-						else //uses one filter
-						{
+						else { //uses one filter 
 							//if they want a specific Host
 							log.finer("Entering split by one Host");
 							log.finer("Splitting for Host: " + hostName);
+							resetCounts();
 							
-							staticMetricsHost(env, xpath, hostName, xmlDoc);
+							analyzeAllNodes("host", hostName);
+							collectDynamicMetrics(env, "Host Name", hostName);
 						}
 					}
-					else
-					{ //uses multiple filters
+					else { //uses multiple filters
 						//if they want multiple Hosts
 						log.finer("Entering split by multiple Hosts");
-						
-						for (int i = 0; i < arrayhostName.length; ++i){
+						for (int i = 0; i < arrayhostName.length; ++i) {
 							log.finer("Splitting for Host: " + arrayhostName[i]);
 							String tempHostName = arrayhostName[i];
+							resetCounts();
 							
-							dynamicMetricsHost(env, xpath, tempHostName, xmlDoc);
+							analyzeAllNodes("host", tempHostName);
+							collectDynamicMetrics(env, "Host Name", tempHostName);
 						}
 					}
 					break;
-				case 3: //"Collector"
-					
+				case "Collector": //"Collector"
 					log.finer("Entering split by Collector");
+					resetCounts();
 					
 					//used to store unique collector names
 					Set<String> uniqueCollector = new HashSet<String>();
 					
-					//grabs all the unique collector names and puts them in a string array
-					collectorlist = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok')]", xmlDoc, XPathConstants.NODESET);
-					
-					for (int i = 0; i < collectorlist.getLength(); ++i){
-						String tempstringCollector = collectorlist.item(i).getAttributes().getNamedItem("collector").toString();
-						String[] arraytempCollector = tempstringCollector.split("\"");
-						uniqueCollector.add(arraytempCollector[1]);
+					for (int i = 0; i < allnodes.getLength(); i++) {						
+						Element element = (Element) allnodes.item(i);
+						uniqueCollector.add(element.getElementsByTagName("collectorName").item(0).getTextContent());
 					}
 					
 					log.finer("Number of Unique Collectors: " + uniqueCollector.size());
-					
 					String[] arrayCollector = uniqueCollector.toArray(new String[0]);
 					
-					if (arraycollectorName.length==1){ //either none or one filter
-						if(arraycollectorName[0].equals("")) //uses no filter
-						{
+					if (arraycollectorName.length==1) { //either none or one filter
+						if(arraycollectorName[0].equals("")) { //uses no filter
 							//if they want all Collectors
 							log.finer("Entering split by all Collectors");
-							
-							for (int i = 0; i < uniqueCollector.size(); ++i){
+							for (int i = 0; i < uniqueCollector.size(); ++i) {
 								log.finer("Splitting for Collector: " + arrayCollector[i]);
 								String tempCollectorName = arrayCollector[i];
+								resetCounts();
 								
-								dynamicMetricsCollector(env, xpath, tempCollectorName, xmlDoc);
-							}	
+								analyzeAllNodes("collectorName", tempCollectorName);
+								collectDynamicMetrics(env, "Collector Name", tempCollectorName);
+							}
 						}
-						else //uses one filter
-						{
+						else { //uses one filter 
 							//if they want a specific Collector
 							log.finer("Entering split by one Collector");
 							log.finer("Splitting for Collector: " + collectorName);
+							resetCounts();
 							
-							staticMetricsCollector(env, xpath, collectorName, xmlDoc);
+							analyzeAllNodes("collectorName", collectorName);
+							collectDynamicMetrics(env, "Collector Name", collectorName);
 						}
 					}
-					else
-					{ //uses multiple filters
+					else { //uses multiple filters
 						//if they want multiple Hosts
 						log.finer("Entering split by multiple Collectors");
 						
-						for (int i = 0; i < arraycollectorName.length; ++i){
+						for (int i = 0; i < arraycollectorName.length; ++i) {
 							log.finer("Splitting for Collector: " + arraycollectorName[i]);
 							String tempCollectorName = arraycollectorName[i];
+							resetCounts();
 							
-							dynamicMetricsCollector(env, xpath, tempCollectorName, xmlDoc);
+							analyzeAllNodes("collectorName", tempCollectorName);
+							collectDynamicMetrics(env, "Collector Name", tempCollectorName);
 						}
 					}
 					break;
-				case 4: //"No Splitting"
-					
+				case "No Splitting": //"No Splitting"
 					log.finer("Entering split by No Splitting");
+					resetCounts();
 					
-					//if they want no splitting
-					java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-					web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-					mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-					nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-					phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-					cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-					dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-					nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-					dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-					dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-					licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok')])",xmlDoc,XPathConstants.NUMBER);
-                    //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-					//unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-					unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))])",xmlDoc,XPathConstants.NUMBER);
-					//Added agents counts for IIS and Apache web servers
-					web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-					web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-					web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-					web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
+					for (int i = 0; i < allnodes.getLength(); i++) {						
+						Element element = (Element) allnodes.item(i);
+						analyzeElement(element, i);
+					}
 					
-					collectStaticMetrics(env, xpath);
-					
+					collectStaticMetrics(env);
 					break;
-				case 5: //"Agent Version"
-					
+				case "Agent Version": //"Agent Version"
 					log.finer("Entering split by Agent Version");
+					resetCounts();
 					
 					//used to store unique version numbers
 					Set<String> uniqueVersion = new HashSet<String>();
 					
-					//grabs all the unique version numbers and puts them in a string array
-					versionlist = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok')]", xmlDoc, XPathConstants.NODESET);
-					
-					for (int i = 0; i < versionlist.getLength(); ++i){
-						String tempstringVersion = versionlist.item(i).getAttributes().getNamedItem("version").toString();
-						String[] arraytempVersion = tempstringVersion.split("\"");
-						uniqueVersion.add(arraytempVersion[1]);
+					for (int i = 0; i < allnodes.getLength(); i++) {						
+						Element oneelement = (Element) allnodes.item(i);
+						NodeList onenode = oneelement.getElementsByTagName("agentProperties");
+						Element element = (Element) onenode.item(0);
+						uniqueVersion.add(element.getElementsByTagName("agentVersion").item(0).getTextContent());
 					}
 					
 					log.finer("Number of Unique Agent Versions: " + uniqueVersion.size());
-					
 					String[] arrayVersion = uniqueVersion.toArray(new String[0]);
 					
 					//if they want all Agent Versions
 					log.finer("Entering split by all Agent Versions");
-					
-					for (int i = 0; i < uniqueVersion.size(); ++i){
+					for (int i = 0; i < uniqueVersion.size(); ++i) {
 						log.finer("Splitting for Agent Version: " + arrayVersion[i]);
-						
 						String tempVersionName = arrayVersion[i];
+						resetCounts();
 						
-						java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-						web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-						mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-						nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-						phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-						cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @version='" + tempVersionName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-						dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-						nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-						dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-						dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @version='" + tempVersionName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-						licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "'])",xmlDoc,XPathConstants.NUMBER);
-                        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-                        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @version='" + tempVersionName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-                        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@version='" + tempVersionName + "')])",xmlDoc,XPathConstants.NUMBER);
-                        //Added agents counts for IIS and Apache web servers
-                        web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-                        web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @version='" + tempVersionName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-                        web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @version='" + tempVersionName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-                        web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @version='" + tempVersionName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-                        
-						collectDynamicMetrics(env, xpath, "Version Number", tempVersionName);
-					}	
-					
+						for (int j = 0; j < allnodes.getLength(); j++) {						
+							Element oneelement = (Element) allnodes.item(j);
+							NodeList onenode = oneelement.getElementsByTagName("agentProperties");
+							Element element = (Element) onenode.item(0);
+							
+							if (element.getElementsByTagName("agentVersion").item(0).getTextContent().equalsIgnoreCase(tempVersionName)) {
+								analyzeElement(oneelement, j);
+							}
+						}
+						
+						collectDynamicMetrics(env, "Version Number", tempVersionName);
+					}
 					break;
 			}
 		} catch (ClientProtocolException e) {
@@ -459,7 +476,7 @@ public class counter implements Monitor {
 			log.info("IOException: " + e);
 			return new Status(Status.StatusCode.ErrorInternal);
 
-		} catch (Exception e){
+		} catch (Exception e) {
 			log.info("Exception: " + e);
 			return new Status(Status.StatusCode.ErrorInternal);
 		}
@@ -470,8 +487,7 @@ public class counter implements Monitor {
 		return new Status(Status.StatusCode.Success);
 	}
 	
-	private void collectStaticMetrics(MonitorEnvironment env, XPath xpath) {
-		
+	private void collectStaticMetrics(MonitorEnvironment env) {
 		log.finer("Entering collectStaticMetrics method");
 		
 		//used to store unique .NET server names
@@ -479,16 +495,19 @@ public class counter implements Monitor {
 		Set<String> uniqueIIS = new HashSet<String>();
 		Set<String> uniqueApache = new HashSet<String>();
 		
-		for (int j = 0; j < dotnet.getLength(); ++j){
-			uniqueNet.add(dotnet.item(j).getAttributes().getNamedItem("host").toString());
+		for (int j = 0; j < dotnetList.size(); ++j) {
+			Element element = (Element) dotnetList.get(j);
+			uniqueNet.add(element.getElementsByTagName("agentHost").item(0).getTextContent());
 		}
 
-		for (int k = 0; k < web_iis.getLength(); ++k){
-			uniqueIIS.add(web_iis.item(k).getAttributes().getNamedItem("host").toString());
+		for (int k = 0; k < web_iisList.size(); ++k) {
+			Element element = (Element) web_iisList.get(k);
+			uniqueIIS.add(element.getElementsByTagName("agentHost").item(0).getTextContent());
 		}
 
-		for (int l = 0; l < web_apache.getLength(); ++l){
-			uniqueApache.add(web_apache.item(l).getAttributes().getNamedItem("host").toString());
+		for (int l = 0; l < web_apacheList.size(); ++l) {
+			Element element = (Element) web_apacheList.get(l);
+			uniqueApache.add(element.getElementsByTagName("agentHost").item(0).getTextContent());
 		}
 		
 		if ((measures = env.getMonitorMeasures(METRIC_GROUP, MSR_JAVA)) != null) {
@@ -570,103 +589,10 @@ public class counter implements Monitor {
 				measure.setValue((double)uniqueApache.size());
 		}
 		
-		log.finer("Entering collectStaticMetrics method");
+		log.finer("Exiting collectStaticMetrics method");
 	}
 
-	private void staticMetricsSystemProfile(MonitorEnvironment env,
-			XPath xpath, String profileName, Document xmlDoc) throws XPathExpressionException {
-		
-		log.finer("Entering staticMetricsSystemProfile method");
-		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @system='" + profileName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-		dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-		nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + profileName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "'])",xmlDoc,XPathConstants.NUMBER);
-        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + profileName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@system='" + profileName + "')])",xmlDoc,XPathConstants.NUMBER);
-        //Added agents counts for IIS and Apache web servers
-        web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-        web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + profileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-        web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + profileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-        web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + profileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-        
-		collectStaticMetrics(env, xpath);
-		
-		log.finer("Exiting staticMetricsSystemProfile method");
-	}
-	
-	private void staticMetricsHost(MonitorEnvironment env, XPath xpath,
-			String hostName2, Document xmlDoc) throws XPathExpressionException {
-		
-		log.finer("Entering staticMetricsHost method");
-		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @host='" + hostName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-		dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-		nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + hostName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "'])",xmlDoc,XPathConstants.NUMBER);
-        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @host='" + hostName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@host='" + hostName + "')])",xmlDoc,XPathConstants.NUMBER);
-        //Added agents counts for IIS and Apache web servers
-        web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-        web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + hostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-        web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + hostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-        web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + hostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-        
-		collectStaticMetrics(env, xpath);
-		
-		log.finer("Exiting staticMetricsHost method");
-		
-	}
-
-	private void staticMetricsCollector(MonitorEnvironment env, XPath xpath,
-			String collectorName2, Document xmlDoc) throws XPathExpressionException {
-
-		log.finer("Entering staticMetricsCollector method");
-		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @collector='" + collectorName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-		dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-		nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + collectorName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "'])",xmlDoc,XPathConstants.NUMBER);
-        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @collector='" + collectorName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@collector='" + collectorName + "')])",xmlDoc,XPathConstants.NUMBER);
-        //Added agents counts for IIS and Apache web servers
-        web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-        web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + collectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-        web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + collectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-        web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + collectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-        
-		collectStaticMetrics(env, xpath);
-		
-		log.finer("Exiting staticMetricsCollector method");
-	}
-
-	private void collectDynamicMetrics(MonitorEnvironment env, XPath xpath,
-			String tempSplitString, String tempSplitName) {
-		
+	private void collectDynamicMetrics(MonitorEnvironment env, String tempSplitString, String tempSplitName) {
 		log.finer("Entering collectDynamicMetrics method");
 		
 		//used to store unique .NET server names
@@ -674,16 +600,19 @@ public class counter implements Monitor {
 		Set<String> uniqueIIS = new HashSet<String>();
 		Set<String> uniqueApache = new HashSet<String>();
 		
-		for (int j = 0; j < dotnet.getLength(); ++j){
-			uniqueNet.add(dotnet.item(j).getAttributes().getNamedItem("host").toString());
-		}
-		
-		for (int k = 0; k < web_iis.getLength(); ++k){
-			uniqueIIS.add(web_iis.item(k).getAttributes().getNamedItem("host").toString());
+		for (int m = 0; m < dotnetList.size(); ++m) {
+			Element element = (Element) dotnetList.get(m);
+			uniqueNet.add(element.getElementsByTagName("agentHost").item(0).getTextContent());
 		}
 
-		for (int l = 0; l < web_apache.getLength(); ++l){
-			uniqueApache.add(web_apache.item(l).getAttributes().getNamedItem("host").toString());
+		for (int n = 0; n < web_iisList.size(); ++n) {
+			Element element = (Element) web_iisList.get(n);
+			uniqueIIS.add(element.getElementsByTagName("agentHost").item(0).getTextContent());
+		}
+
+		for (int p = 0; p < web_apacheList.size(); ++p) {
+			Element element = (Element) web_apacheList.get(p);
+			uniqueApache.add(element.getElementsByTagName("agentHost").item(0).getTextContent());
 		}
 		
 		if ((measures = env.getMonitorMeasures(METRIC_GROUP, MSR_JAVA)) != null) {
@@ -797,146 +726,7 @@ public class counter implements Monitor {
 		    	dynamicMeasure.setValue((double)uniqueApache.size());
 			}
 		}
-		
 		log.finer("Exiting collectDynamicMetrics method");
-	}
-
-	private void dynamicMetricsSystemProfile(MonitorEnvironment env,
-			XPath xpath, String tempProfileName, Document xmlDoc) throws XPathExpressionException {
-		
-		log.finer("Entering dynamicMetricsSystemProfile method");
-		
-		if(agentGroup.equals("true")){
-			//grabs all the unique agent group names for the current system profile and puts them in a string array
-			agentgrouplist = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "']", xmlDoc, XPathConstants.NODESET);
-			
-			//used to store unique agent group names
-			Set<String> uniqueAgentGroup = new HashSet<String>();
-			
-			for (int i = 0; i < agentgrouplist.getLength(); ++i){
-				String tempstringAgentGroup = agentgrouplist.item(i).getAttributes().getNamedItem("group").toString();
-				String[] arraytempAgentGroup = tempstringAgentGroup.split("\"");
-				uniqueAgentGroup.add(arraytempAgentGroup[1]);
-			}
-			
-			log.finer("Number of Unique Agent Groups: " + uniqueAgentGroup.size());
-			
-			String[] arrayAgentGroup = uniqueAgentGroup.toArray(new String[0]);
-			
-			for (int i = 0;i < arrayAgentGroup.length;i++){
-				
-				log.finer("Splitting for Agent Group: " + arrayAgentGroup[i]);
-				
-				String tempAgentGroupName = arrayAgentGroup[i];
-				
-				java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and @group='" + tempAgentGroupName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-				web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-				mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-				nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-				phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-				cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-				dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-				nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-				dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-				dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-				licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "'])",xmlDoc,XPathConstants.NUMBER);
-                //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-                //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-                unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "')])",xmlDoc,XPathConstants.NUMBER);
-                //Added agents counts for IIS and Apache web servers
-                web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-                web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-                web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-                web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and  @group='" + tempAgentGroupName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-                
-				collectDynamicMetrics(env, xpath, "Profile Name/Agent Group", tempProfileName + "/" + tempAgentGroupName);
-			}
-		}
-		else
-		{
-			java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-			web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-			mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-			nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-			phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-			cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @system='" + tempProfileName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-			dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-			nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-			dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-			dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-			licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "'])",xmlDoc,XPathConstants.NUMBER);
-            //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-            //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @system='" + tempProfileName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-            unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@system='" + tempProfileName + "')])",xmlDoc,XPathConstants.NUMBER);
-            //Added agents counts for IIS and Apache web servers
-            web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-            web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @system='" + tempProfileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-            web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-            web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @system='" + tempProfileName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-            
-			collectDynamicMetrics(env, xpath, "Profile Name", tempProfileName);
-		}
-		log.finer("Exiting dynamicMetricsSystemProfile method");
-	}
-	
-	private void dynamicMetricsHost(MonitorEnvironment env, XPath xpath,
-			String tempHostName, Document xmlDoc) throws XPathExpressionException {
-		
-		log.finer("Entering dynamicMetricsHost method");
-		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @host='" + tempHostName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-		dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-		nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + tempHostName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "'])",xmlDoc,XPathConstants.NUMBER);
-        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @host='" + tempHostName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@host='" + tempHostName + "')])",xmlDoc,XPathConstants.NUMBER);
-        //Added agents counts for IIS and Apache web servers
-        web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-        web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @host='" + tempHostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-        web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + tempHostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-        web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @host='" + tempHostName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-        
-		collectDynamicMetrics(env, xpath, "Host Name", tempHostName);
-		
-		log.finer("Exiting dynamicMetricsHost method");
-	}
-	
-	private void dynamicMetricsCollector(MonitorEnvironment env, XPath xpath,
-			String tempCollectorName, Document xmlDoc) throws XPathExpressionException {
-		
-		log.finer("Entering dynamicMetricsCollector method");
-		
-		java = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Java' or @technologydesc='Java')])",xmlDoc,XPathConstants.NUMBER);
-		web = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Web server' or @technologydesc='Web server')])",xmlDoc,XPathConstants.NUMBER);
-		mb = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='WebSphere Message Broker' or @technologydesc='WebSphere Message Broker')])",xmlDoc,XPathConstants.NUMBER);
-		nativeagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Native' or @technologydesc='Native')])",xmlDoc,XPathConstants.NUMBER);
-		phpagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='PHP' or @technologydesc='PHP')])",xmlDoc,XPathConstants.NUMBER);
-		cicsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[(contains(@license, 'license ok') or @license='') and @capture='true' and @collector='" + tempCollectorName + "' and (@technology='CICS' or @technologydesc='CICS')])",xmlDoc,XPathConstants.NUMBER);
-		dbagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Database' or @technologydesc='Database')])",xmlDoc,XPathConstants.NUMBER);
-		nodejsagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Node.js' or @technologydesc='Node.js')])",xmlDoc,XPathConstants.NUMBER);
-		dotnetindividual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='.NET' or @technologydesc='.NET')])",xmlDoc,XPathConstants.NUMBER);
-		dotnet = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + tempCollectorName + "' and (@technology='.NET' or @technologydesc='.NET')]", xmlDoc, XPathConstants.NODESET);
-		licensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "'])",xmlDoc,XPathConstants.NUMBER);
-        //Added filter for agents capable of capture but not licensed (ex: License Exhausted in DT AM v6.0+) - MSS Aug 17, 2015
-        //unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[not(contains(@license, 'license ok')) and @collector='" + tempCollectorName + "' and @capture='false'])",xmlDoc,XPathConstants.NUMBER);
-        unlicensedagent = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[((not(contains(@license, 'license ok')) and @capture='false') or (contains(@license, 'license exhausted'))) and (@collector='" + tempCollectorName + "')])",xmlDoc,XPathConstants.NUMBER);
-        //Added agents counts for IIS and Apache web servers
-        web_apache_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')])",xmlDoc,XPathConstants.NUMBER);
-        web_iis_individual = (Double) xpath.evaluate("count(/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license, 'license ok') and @collector='" + tempCollectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')])",xmlDoc,XPathConstants.NUMBER);
-        web_apache = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + tempCollectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[Apache')]", xmlDoc, XPathConstants.NODESET);
-        web_iis = (NodeList) xpath.evaluate("/dashboardreport/data/agentsoverviewdashlet/agents/agent[contains(@license,'license ok') and @collector='" + tempCollectorName + "' and (@technology='Web server' or @technologydesc='Web server') and contains(@name, '[IIS')]", xmlDoc, XPathConstants.NODESET);
-        
-		collectDynamicMetrics(env, xpath, "Collector Name", tempCollectorName);
-		
-		log.finer("Exiting dynamicMetricsCollector method");
 	}
 
 	@Override
@@ -944,10 +734,8 @@ public class counter implements Monitor {
 
 	}
 	
-	public static void disableCertificateValidation() {
-		
+	public void disableCertificateValidation() {
 		log.finer("Entering disableCertificateValidation method");  
-		
 		// Create a trust manager that does not validate certificate chains
 		  TrustManager[] trustAllCerts = new TrustManager[] { 
 		    new X509TrustManager() {
@@ -971,6 +759,113 @@ public class counter implements Monitor {
 		    HttpsURLConnection.setDefaultHostnameVerifier(hv);
 		  } catch (Exception e) {}
 		  
-		  log.finer("Leaving disableCertificateValidation method");
+		  log.finer("Exiting disableCertificateValidation method");
+	}
+	
+	public void resetCounts() {
+			log.finer("Entering resetCounts method");  
+			java = 0;
+			web = 0;
+			mb = 0;
+			dotnetindividual = 0;
+			web_iis_individual = 0;
+			web_apache_individual = 0;
+			nativeagent = 0;
+			unlicensedagent = 0;
+			licensedagent = 0;
+			phpagent = 0;
+			cicsagent = 0;
+			dbagent = 0;
+			nodejsagent = 0;
+			dotnetList = new ArrayList<>();
+			web_iisList = new ArrayList<>();
+			web_apacheList = new ArrayList<>();
+			
+			log.finer("Exiting resetCounts method");
+	}
+
+	public void analyzeAllNodes(String elementTag, String searchString) {
+		log.finer("Entering analyzeAllNodes method");  
+		
+		for (int j = 0; j < allnodes.getLength(); j++) {						
+			Element element = (Element) allnodes.item(j);
+			
+			if (element.getElementsByTagName(elementTag).item(0).getTextContent().equalsIgnoreCase(searchString)) {
+				analyzeElement(element, j);
+			}
+		}
+		log.finer("Exiting analyzeAllNodes method");
+	}
+
+	public void analyzeAllNodesDouble(String elementTag, String searchString, String elementTagSecond, String searchStringSecond) {
+		log.finer("Entering analyzeAllNodesDouble method");  
+		
+		for (int j = 0; j < allnodes.getLength(); j++) {						
+			Element element = (Element) allnodes.item(j);
+			if (element.getElementsByTagName(elementTag).item(0).getTextContent().equalsIgnoreCase(searchString)) {
+				if (element.getElementsByTagName(elementTagSecond).item(0).getTextContent().equalsIgnoreCase(searchStringSecond)) {
+					analyzeElement(element, j);
+				}
+			}
+		}
+		log.finer("Exiting analyzeAllNodesDouble method");
+	}
+	
+	public void analyzeElement(Element element, int i) {
+		log.finer("Entering analyzeElement method");  
+		
+		if (element.getElementsByTagName("licenseInformation").getLength() > 0) {
+			if (element.getElementsByTagName("licenseInformation").item(0).getTextContent().toLowerCase().contains("license ok")) {
+				licensedagent++;
+				
+				switch (element.getElementsByTagName("technologyType").item(0).getTextContent().toLowerCase()) {
+					case "java":								
+						java++;
+						break;
+					case "web server":
+						web++;
+						if (element.getElementsByTagName("agentInstanceName").item(0).getTextContent().toLowerCase().contains("[apache")) {
+							web_apache_individual++;
+							web_apacheList.add(allnodes.item(i));
+							}
+						if (element.getElementsByTagName("agentInstanceName").item(0).getTextContent().toLowerCase().contains("[iis")) {
+							web_iis_individual++;
+							web_iisList.add(allnodes.item(i));
+							}
+						break;
+					case "websphere message broker":
+						mb++;
+						break;
+					case "native":
+						nativeagent++;
+						break;
+					case "php":
+						phpagent++;
+						break;
+					case "cics":
+						if (element.getElementsByTagName("capture").item(0).getTextContent().equalsIgnoreCase("true"))
+							cicsagent++;
+						break;
+					case "database":
+						dbagent++;
+						break;
+					case "node.js":
+						nodejsagent++;
+						break;
+					case ".net":
+						dotnetindividual++;
+						dotnetList.add(allnodes.item(i));
+						break;
+				}
+			}
+			else if (element.getElementsByTagName("licenseInformation").item(0).getTextContent().toLowerCase().contains("license exhausted")) {
+				unlicensedagent++;
+			}
+			else {
+				if (element.getElementsByTagName("capture").item(0).getTextContent().equalsIgnoreCase("false"))
+					unlicensedagent++;
+			}
+		}
+		log.finer("Exiting analyzeElement method");
 	}
 }
