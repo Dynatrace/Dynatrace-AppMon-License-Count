@@ -836,6 +836,9 @@ public class counter implements Monitor {
 					case "websphere message broker":
 						mb++;
 						break;
+					case "IBM Integration Bus":
+						mb++;
+						break;
 					case "native":
 						nativeagent++;
 						break;
