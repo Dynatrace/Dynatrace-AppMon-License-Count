@@ -822,6 +822,19 @@ public class counter implements Monitor {
 					case "java":								
 						java++;
 						break;
+                    //Web Server for 6.5 Support
+                    case "web server":
+						web++;
+						if (element.getElementsByTagName("agentInstanceName").item(0).getTextContent().toLowerCase().contains("[apache")) {
+							web_apache_individual++;
+							web_apacheList.add(allnodes.item(i));
+							}
+						if (element.getElementsByTagName("agentInstanceName").item(0).getTextContent().toLowerCase().contains("[iis")) {
+							web_iis_individual++;
+							web_iisList.add(allnodes.item(i));
+							}
+						break;
+                    //Web Server for 7.0
                     case "iis":
 						web++;
 						web_iis_individual++;
